@@ -1,15 +1,31 @@
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
-
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
-    return res.status(405).json({ success: false, message: 'Method not allowed' })
+    return res.status(405).json({
+      success: false,
+      message: 'Method not allowed',
+    })
   }
 
   try {
+    // Check the API key before initializing Resend
+    const apiKey = process.env.RESEND_API_KEY
+
+    if (!apiKey) {
+      console.error('RESEND_API_KEY is missing')
+      return res.status(500).json({
+        success: false,
+        message: 'Email service is not configured.',
+      })
+    }
+
+    const resend = new Resend(apiKey)
+
     const body =
-      typeof req.body === 'string' ? JSON.parse(req.body) : req.body || {}
+      typeof req.body === 'string'
+        ? JSON.parse(req.body)
+        : req.body || {}
 
     const {
       name,
@@ -31,17 +47,13 @@ export default async function handler(req, res) {
       })
     }
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (
+      typeof email !== 'string' ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+    ) {
       return res.status(400).json({
         success: false,
         message: 'Please enter a valid email address.',
-      })
-    }
-
-    if (!process.env.RESEND_API_KEY) {
-      return res.status(500).json({
-        success: false,
-        message: 'Email service is not configured.',
       })
     }
 
@@ -68,6 +80,7 @@ Submitted at: ${submittedAt || 'Not provided'}
 
     if (error) {
       console.error('Resend error:', error)
+
       return res.status(500).json({
         success: false,
         message: 'Could not send your submission.',
@@ -77,6 +90,7 @@ Submitted at: ${submittedAt || 'Not provided'}
     return res.status(200).json({ success: true })
   } catch (error) {
     console.error('Contact API error:', error)
+
     return res.status(500).json({
       success: false,
       message: 'Something went wrong. Please try again.',
