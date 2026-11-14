@@ -2850,16 +2850,33 @@ a.blog-card {
   line-height: 1.75;
 }
 
-.resource-coming-soon {
+.resource-download {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  margin-top: 24px;
-  padding-top: 14px;
-  border-top: 1px solid #f0dfe5;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 18px;
   color: #ad2c66;
-  font-size: 0.86rem;
-  font-weight: 600;
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  transition: gap 220ms ease, color 220ms ease;
+}
+
+.resource-download svg {
+  transition: transform 220ms ease;
+}
+
+.resource-card:hover .resource-download,
+.resource-download:hover,
+.resource-download:focus-visible {
+  color: #8f1f52;
+}
+
+.resource-card:hover .resource-download svg,
+.resource-download:hover svg {
+  transform: translateY(2px);
 }
 
 /* Existing contact band */

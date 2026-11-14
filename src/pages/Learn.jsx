@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { site } from '../site.config'
+import { track } from '../lib/analytics'
 import Seo from '../components/Seo'
 import Reveal from '../components/Reveal'
 import Disclaimer from '../components/Disclaimer'
@@ -37,20 +38,22 @@ const stages = [
 
 const resources = [
   {
-    title: 'Understanding Menopause',
-    description: 'A simple guide to the stages and common changes.',
+    title: 'Menopause 101: Starter Guide',
+    description:
+      'A simple guide for Indian women. Understand the changes, know your options and feel more prepared.',
+    file: '/guides/menopause-101-starter-guide.pdf',
   },
   {
-    title: 'Managing Symptoms',
-    description: 'Helpful information about common symptoms and everyday comfort.',
+    title: 'Skin & Hair After 40',
+    description:
+      'A simple guide to looking after your skin and hair, with questions to take to your doctor.',
+    file: '/guides/skin-and-hair-after-40.pdf',
   },
   {
-    title: 'Sleep & Wellbeing',
-    description: 'Learn about sleep, mood and looking after yourself.',
-  },
-  {
-    title: 'Your Doctor Visit',
-    description: 'Questions and notes to help you prepare for an appointment.',
+    title: 'The Hair Care Pyramid',
+    description:
+      'A take-home guide for women 40+. Build a stronger hair routine from the foundations, not another bottle.',
+    file: '/guides/hair-care-pyramid.pdf',
   },
 ]
 
@@ -201,8 +204,8 @@ export default function Learn() {
             <p className="eyebrow">THE RESOURCE LIBRARY</p>
             <h2 className="section__title">Helpful guides, in one place.</h2>
             <p className="learn-intro">
-              Explore our upcoming downloadable guides, designed to make
-              menopause information easier to understand.
+              Explore our downloadable guides, designed to make menopause
+              information easier to understand.
             </p>
           </Reveal>
 
@@ -212,9 +215,18 @@ export default function Learn() {
                 <span className="resource-label">PDF GUIDE</span>
                 <h3>{resource.title}</h3>
                 <p>{resource.description}</p>
-                <span className="resource-coming-soon">
-                  Coming soon
-                </span>
+                <a
+                  className="resource-download"
+                  href={resource.file}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={() => track('resource_download', { title: resource.title })}
+                >
+                  <span>View guide</span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M12 3v12M7 10l5 5 5-5M5 21h14" />
+                  </svg>
+                </a>
               </Reveal>
             ))}
           </div>
