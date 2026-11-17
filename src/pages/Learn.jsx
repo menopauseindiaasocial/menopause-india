@@ -1,9 +1,13 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { site } from '../site.config'
 import { track } from '../lib/analytics'
+import { getItem } from '../lib/storage'
+import { LEAD_KEY } from '../components/PhoneForm'
 import Seo from '../components/Seo'
 import Reveal from '../components/Reveal'
 import Disclaimer from '../components/Disclaimer'
+import GuideModal from '../components/GuideModal'
 
 const stages = [
   {
@@ -38,18 +42,21 @@ const stages = [
 
 const resources = [
   {
+    slug: 'menopause-101-starter-guide',
     title: 'Menopause 101: Starter Guide',
     description:
       'A simple guide for Indian women. Understand the changes, know your options and feel more prepared.',
     file: '/guides/menopause-101-starter-guide.pdf',
   },
   {
+    slug: 'skin-and-hair-after-40',
     title: 'Skin & Hair After 40',
     description:
       'A simple guide to looking after your skin and hair, with questions to take to your doctor.',
     file: '/guides/skin-and-hair-after-40.pdf',
   },
   {
+    slug: 'hair-care-pyramid',
     title: 'The Hair Care Pyramid',
     description:
       'A take-home guide for women 40+. Build a stronger hair routine from the foundations, not another bottle.',
@@ -90,11 +97,24 @@ function StageVisual({ type }) {
 }
 
 export default function Learn() {
+  const [activeGuide, setActiveGuide] = useState(null)
+
   const scrollToResources = () => {
     const el = document.getElementById('resources')
     if (el) {
       el.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }
+  }
+
+  const requestGuide = (resource) => {
+    // Visitors who have already shared their details can download straight away.
+    if (getItem(LEAD_KEY) === 'submitted') {
+      track('resource_download', { title: resource.title, slug: resource.slug })
+      window.open(resource.file, '_blank', 'noopener')
+      return
+    }
+    track('resource_gate_open', { title: resource.title, slug: resource.slug })
+    setActiveGuide(resource)
   }
 
   return (
@@ -215,18 +235,16 @@ export default function Learn() {
                 <span className="resource-label">PDF GUIDE</span>
                 <h3>{resource.title}</h3>
                 <p>{resource.description}</p>
-                <a
+                <button
+                  type="button"
                   className="resource-download"
-                  href={resource.file}
-                  target="_blank"
-                  rel="noreferrer"
-                  onClick={() => track('resource_download', { title: resource.title })}
+                  onClick={() => requestGuide(resource)}
                 >
-                  <span>View guide</span>
+                  <span>Get the guide</span>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                     <path d="M12 3v12M7 10l5 5 5-5M5 21h14" />
                   </svg>
-                </a>
+                </button>
               </Reveal>
             ))}
           </div>
@@ -263,6 +281,10 @@ export default function Learn() {
           <Disclaimer className="disclaimer--boxed" />
         </div>
       </section>
+
+      {activeGuide && (
+        <GuideModal guide={activeGuide} onClose={() => setActiveGuide(null)} />
+      )}
     </>
   )
 }
